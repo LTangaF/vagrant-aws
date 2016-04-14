@@ -12,16 +12,17 @@ module VagrantPlugins
         end
 
         def call(env)
-          server         = env[:aws_compute].servers.get(env[:machine].id)
-          region         = env[:machine].provider_config.region
-          region_config  = env[:machine].provider_config.get_region_config(region)
+          server              = env[:aws_compute].servers.get(env[:machine].id)
+          region              = env[:machine].provider_config.region
+          region_config       = env[:machine].provider_config.get_region_config(region)
 
-          elastic_ip     = region_config.elastic_ip
+          elastic_ip          = region_config.elastic_ip
+          preserve_elastic_ip = region_config.preserve_elastic_ip
 
           # Release the elastic IP
           ip_file = env[:machine].data_dir.join('elastic_ip')
           if ip_file.file?
-            release_address(env,ip_file.read)
+            release_address(env,ip_file.read,preserve_elastic_ip)
             ip_file.delete
           end
 
@@ -34,15 +35,15 @@ module VagrantPlugins
         end
 
         # Release an elastic IP address
-        def release_address(env,eip)
+        def release_address(env,eip,preserve)
           h = JSON.parse(eip)
           # Use association_id and allocation_id for VPC, use public IP for EC2
           if h['association_id']
             env[:aws_compute].disassociate_address(nil,h['association_id'])
-            env[:aws_compute].release_address(h['allocation_id'])
+            env[:aws_compute].release_address(h['allocation_id']) unless preserve
           else
             env[:aws_compute].disassociate_address(h['public_ip'])
-            env[:aws_compute].release_address(h['public_ip'])
+            env[:aws_compute].release_address(h['public_ip']) unless preserve
           end
         end
       end

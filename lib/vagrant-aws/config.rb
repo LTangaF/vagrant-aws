@@ -55,6 +55,11 @@ module VagrantPlugins
       # @return [String]
       attr_accessor :elastic_ip
 
+      # If true, prevent release of elastic IP at termination.
+      #
+      # @return [Boolean]
+      attr_accessor :preserve_elastic_ip
+
       # The name of the AWS region in which to create the instance.
       #
       # @return [String]
@@ -208,6 +213,7 @@ module VagrantPlugins
         @use_iam_profile           = UNSET_VALUE
         @block_device_mapping      = []
         @elastic_ip                = UNSET_VALUE
+        @preserve_elastic_ip       = UNSET_VALUE
         @iam_instance_profile_arn  = UNSET_VALUE
         @iam_instance_profile_name = UNSET_VALUE
         @terminate_on_shutdown     = UNSET_VALUE
@@ -333,6 +339,9 @@ module VagrantPlugins
 
         # Acquire an elastic IP if requested
         @elastic_ip = nil if @elastic_ip == UNSET_VALUE
+
+        # Don't preserve elastic IP by default
+        @preserve_elastic_ip = false if @preserve_elastic_ip == UNSET_VALUE
 
         # Default region is us-east-1. This is sensible because AWS
         # generally defaults to this as well.

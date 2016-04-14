@@ -37,6 +37,7 @@ module VagrantPlugins
           user_data             = region_config.user_data
           block_device_mapping  = region_config.block_device_mapping
           elastic_ip            = region_config.elastic_ip
+          preserve_elastic_ip   = region_config.preserve_elastic_ip
           terminate_on_shutdown = region_config.terminate_on_shutdown
           iam_instance_profile_arn  = region_config.iam_instance_profile_arn
           iam_instance_profile_name = region_config.iam_instance_profile_name
@@ -69,6 +70,7 @@ module VagrantPlugins
           env[:ui].info(" -- IAM Instance Profile Name: #{iam_instance_profile_name}") if iam_instance_profile_name
           env[:ui].info(" -- Private IP: #{private_ip_address}") if private_ip_address
           env[:ui].info(" -- Elastic IP: #{elastic_ip}") if elastic_ip
+          env[:ui].info(" -- Preserve Elastic IP: #{preserve_elastic_ip}") if preserve_elastic_ip
           env[:ui].info(" -- User Data: yes") if user_data
           env[:ui].info(" -- Security Groups: #{security_groups.inspect}") if !security_groups.empty?
           env[:ui].info(" -- User Data: #{user_data}") if user_data
@@ -97,7 +99,6 @@ module VagrantPlugins
             :ebs_optimized             => ebs_optimized,
             :associate_public_ip       => associate_public_ip,
             :kernel_id                 => kernel_id,
-            :associate_public_ip       => associate_public_ip,
             :tenancy                   => tenancy
           }
 
@@ -284,7 +285,7 @@ module VagrantPlugins
           end
 
           # Save this IP to the data dir so it can be released when the instance is destroyed
-          if h 
+          if h
             ip_file = env[:machine].data_dir.join('elastic_ip')
             ip_file.open('w+') do |f|
               f.write(h.to_json)
@@ -292,7 +293,7 @@ module VagrantPlugins
           end
         end
 
-        def handle_elastic_ip_error(env, message) 
+        def handle_elastic_ip_error(env, message)
           @logger.debug(message)
           terminate(env)
           raise Errors::FogError,

@@ -38,6 +38,7 @@ describe VagrantPlugins::AWS::Config do
     its("use_iam_profile")   { should be false }
     its("block_device_mapping")  {should == [] }
     its("elastic_ip")        { should be_nil }
+    its("preserve_elastic_ip")  { should == false }
     its("terminate_on_shutdown") { should == false }
     its("ssh_host_attribute") { should be_nil }
     its("monitoring")        { should == false }
@@ -58,7 +59,7 @@ describe VagrantPlugins::AWS::Config do
       :ebs_optimized, :region, :secret_access_key, :session_token, :monitoring,
       :associate_public_ip, :subnet_id, :tags, :package_tags, :elastic_ip,
       :terminate_on_shutdown, :iam_instance_profile_arn, :iam_instance_profile_name,
-      :use_iam_profile, :user_data, :block_device_mapping,
+      :use_iam_profile, :user_data, :block_device_mapping, :preserve_elastic_ip,
       :source_dest_check].each do |attribute|
 
       it "should not default #{attribute} if overridden" do
